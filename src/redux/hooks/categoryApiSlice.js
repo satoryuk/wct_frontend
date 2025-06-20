@@ -5,14 +5,14 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getCategory: builder.query({
       query: () => ({
-        url: `${BASE_PRIVATE_URL}/categorys`,
+        url: `${BASE_PRIVATE_URL}/categories`,
         method: "GET",
       }),
     }),
 
     createCategory: builder.mutation({
       query: (data) => ({
-        url: `${BASE_PRIVATE_URL}/categorys`,
+        url: `${BASE_PRIVATE_URL}/categories`,
         method: "POST",
         body: data,
       }),
@@ -20,14 +20,14 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
 
     getCategoryById: builder.query({
       query: (id) => ({
-        url: `${BASE_PRIVATE_URL}/categorys/${id}`,
+        url: `${BASE_PRIVATE_URL}/categories/${id}`,
         method: "GET",
       }),
     }),
 
     deactivateCategory: builder.mutation({
       query: (id) => ({
-        url: `${BASE_PRIVATE_URL}/categorys/${id}/deactivate`,
+        url: `${BASE_PRIVATE_URL}/categories/${id}/deactivate`,
         method: "PATCH",
       }),
     }),

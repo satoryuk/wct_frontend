@@ -7,6 +7,8 @@ import {
   useGetProductByIdQuery,
   useUpdateProductMutation,
 } from "../../../../redux/hooks/productApiSlice";
+
+import { useGetCategoryQuery } from "../../../../redux/hooks/categoryApiSlice";
 import { useNavigate, useParams } from "react-router-dom";
 
 const AddProduct = () => {
@@ -26,12 +28,12 @@ const AddProduct = () => {
     description: "",
     status: 1, // 1 for active, 0 for inactive
   });
-
+  const { data: categories } = useGetCategoryQuery;
   const [createProduct] = useCreateProductMutation();
   const [updateProduct] = useUpdateProductMutation();
   const { refetch } = useGetProductsQuery();
-  const { data: existingProduct, isLoading } = useGetProductByIdQuery(id);
-
+  const { data: existingProduct } = useGetProductByIdQuery(id);
+  console.log("category",categories?.data);
   console.log("exits product", existingProduct);
 
   useEffect(() => {
