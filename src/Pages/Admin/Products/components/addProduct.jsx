@@ -17,10 +17,11 @@ const AddProduct = () => {
   const [isEditMde, setIsEditMode] = React.useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
+  const [previewImage, setPreviewImage] = useState("");
 
   const [productData, setProductData] = useState({
     product_name: "",
-    image: "",
+    image: null, // Changed from string to null for file upload
     price: "",
     category: "",
     brand: "",
@@ -38,25 +39,24 @@ const AddProduct = () => {
 
   const { data: brandData } = useGetBrandQuery();
   const brands = brandData?.data?.data;
-  console.log("brand:", brands);
-
-  console.log("category", categories);
-  console.log("exits product", existingProduct);
 
   useEffect(() => {
     if (existingProduct) {
       setIsEditMode(true);
       setProductData({
         product_name: existingProduct.data.product_name || "",
-        image: existingProduct.data.image || "",
+        image: existingProduct.data.image || null,
         price: existingProduct.data.price || "",
         category: existingProduct.data.category || "",
         brand: existingProduct.data.brand || "",
         stock_qty: existingProduct.data.stock_qty || "",
         expiry_date: existingProduct.data.expiry_date || "",
         description: existingProduct.data.description || "",
-        status: existingProduct.data.status || 1, // Default to active if not set
+        status: existingProduct.data.status || 1,
       });
+      if (existingProduct.data.image) {
+        setPreviewImage(existingProduct.data.image);
+      }
     }
   }, [id, existingProduct]);
 
@@ -64,7 +64,7 @@ const AddProduct = () => {
     const errors = {};
     if (!productData.product_name)
       errors.product_name = "Product name is required";
-    if (!productData.image) errors.image = "Image URL is required";
+    if (!productData.image && !isEditMde) errors.image = "Image is required";
     if (!productData.price) errors.price = "Price is required";
     if (!productData.stock_qty) errors.stock_qty = "stock_qty is required";
     return errors;
@@ -80,9 +80,26 @@ const AddProduct = () => {
         name === "brand" ||
         name === "stock_qty" ||
         name === "price"
-          ? Number(value) // Convert to number
-          : value, // Keep as string (for text inputs)
+          ? Number(value)
+          : value,
     }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProductData({
+        ...productData,
+        image: file,
+      });
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const cancel = () => {
@@ -91,30 +108,45 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted", productData); // Debug log
+    console.log("Form submitted", productData);
 
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
-      console.log("Validation errors:", validationErrors); // Debug log
+      console.log("Validation errors:", validationErrors);
       setErrors(validationErrors);
       return;
     }
 
     try {
+      const formData = new FormData();
+      formData.append("product_name", productData.product_name);
+      if (productData.image instanceof File) {
+        formData.append("image", productData.image);
+      } else if (productData.image) {
+        formData.append("image", productData.image);
+      }
+      formData.append("price", productData.price);
+      formData.append("category", productData.category);
+      formData.append("brand", productData.brand);
+      formData.append("stock_qty", productData.stock_qty);
+      formData.append("expiry_date", productData.expiry_date);
+      formData.append("description", productData.description);
+      formData.append("status", productData.status);
+
       if (isEditMde) {
-        console.log("Updating product..."); // Debug log
-        const result = await updateProduct({ id, data: productData }).unwrap();
-        console.log("Update result:", result); // Debug log
+        console.log("Updating product...");
+        const result = await updateProduct({ id, data: formData }).unwrap();
+        console.log("Update result:", result);
         toast.success("Product updated successfully");
       } else {
-        console.log("Creating product..."); // Debug log
-        const result = await createProduct(productData).unwrap();
-        console.log("Create result:", result); // Debug log
+        console.log("Creating product...");
+        const result = await createProduct(formData).unwrap();
+        console.log("Create result:", result);
         toast.success("Product created successfully");
       }
 
       await refetch();
-      navigate("/admin/products"); // Make sure this path is correct
+      navigate("/admin/products");
     } catch (error) {
       console.error("Error submitting product:", error);
       toast.error(
@@ -288,6 +320,44 @@ const AddProduct = () => {
               {errors.expiry_date && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.expiry_date}
+                </p>
+              )}
+            </div>
+
+            {/* Image Upload Field */}
+            <div className="relative col-span-2 md:col-span-3">
+              <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
+                Product Image {!isEditMde && "*"}
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="relative flex-1">
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className={`w-full px-3 py-2 border ${
+                      errors.image ? "border-red-500" : "border-gray-300"
+                    } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
+                    required={!isEditMde}
+                  />
+                  {errors.image && (
+                    <p className="mt-1 text-sm text-red-600">{errors.image}</p>
+                  )}
+                </div>
+                {previewImage && (
+                  <div className="w-20 h-20 border rounded-md overflow-hidden">
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+              {isEditMde && !previewImage && (
+                <p className="text-sm text-gray-500 mt-1">
+                  No image currently uploaded
                 </p>
               )}
             </div>
