@@ -10,6 +10,7 @@ import {
 
 import { useGetCategoryQuery } from "../../../../redux/hooks/categoryApiSlice";
 import { useNavigate, useParams } from "react-router-dom";
+import { useGetBrandQuery } from "../../../../redux/hooks/brandApiSlice";
 
 const AddProduct = () => {
   const [errors, setErrors] = React.useState("");
@@ -28,12 +29,18 @@ const AddProduct = () => {
     description: "",
     status: 1, // 1 for active, 0 for inactive
   });
-  const { data: categories } = useGetCategoryQuery;
   const [createProduct] = useCreateProductMutation();
   const [updateProduct] = useUpdateProductMutation();
   const { refetch } = useGetProductsQuery();
   const { data: existingProduct } = useGetProductByIdQuery(id);
-  console.log("category",categories?.data);
+  const { data: categoryData } = useGetCategoryQuery();
+  const categories = categoryData?.data?.data;
+
+  const { data: brandData } = useGetBrandQuery();
+  const brands = brandData?.data?.data;
+  console.log("brand:", brands);
+
+  console.log("category", categories);
   console.log("exits product", existingProduct);
 
   useEffect(() => {
@@ -65,9 +72,16 @@ const AddProduct = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
     setProductData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]:
+        name === "category" ||
+        name === "brand" ||
+        name === "stock_qty" ||
+        name === "price"
+          ? Number(value) // Convert to number
+          : value, // Keep as string (for text inputs)
     }));
   };
 
@@ -77,25 +91,35 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Form submitted", productData); // Debug log
+
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
+      console.log("Validation errors:", validationErrors); // Debug log
       setErrors(validationErrors);
       return;
     }
 
     try {
       if (isEditMde) {
-        await updateProduct({ id, data: productData }).unwrap();
+        console.log("Updating product..."); // Debug log
+        const result = await updateProduct({ id, data: productData }).unwrap();
+        console.log("Update result:", result); // Debug log
         toast.success("Product updated successfully");
       } else {
-        await createProduct(productData).unwrap();
+        console.log("Creating product..."); // Debug log
+        const result = await createProduct(productData).unwrap();
+        console.log("Create result:", result); // Debug log
         toast.success("Product created successfully");
       }
-      refetch();
-      navigate("/admin/products");
+
+      await refetch();
+      navigate("/admin/products"); // Make sure this path is correct
     } catch (error) {
       console.error("Error submitting product:", error);
-      toast.error(error?.data?.message || "Failed to submit product");
+      toast.error(
+        error?.data?.message || error.message || "Failed to submit product"
+      );
     }
   };
 
@@ -166,9 +190,14 @@ const AddProduct = () => {
                 <option value="" disabled>
                   Select category
                 </option>
-                <option value="wine">Wine</option>
-                <option value="spirits">Spirits</option>
-                <option value="beer">Beer</option>
+                {categories?.map((category) => (
+                  <option
+                    key={category.category_id}
+                    value={category.category_id}
+                  >
+                    {`${category.category_name}`}
+                  </option>
+                ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 pt-6">
                 <svg
@@ -197,11 +226,13 @@ const AddProduct = () => {
                 onChange={handleInputChange}
               >
                 <option value="" disabled>
-                  Select brand
+                  Select Brand
                 </option>
-                <option value="brand1">Brand 1</option>
-                <option value="brand2">Brand 2</option>
-                <option value="brand3">Brand 3</option>
+                {brands?.map((brand) => (
+                  <option key={brand.brand_id} value={brand.brand_id}>
+                    {`${brand.brand_name}`}
+                  </option>
+                ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 pt-6">
                 <svg
@@ -249,7 +280,7 @@ const AddProduct = () => {
                 className={`w-full px-3 py-2 border ${
                   errors.expiry_date ? "border-red-500" : "border-gray-300"
                 } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
-                name="expiryDate"
+                name="expiry_date"
                 value={productData.expiry_date}
                 onChange={handleInputChange}
                 required={!isEditMde}

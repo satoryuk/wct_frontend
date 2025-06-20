@@ -54,7 +54,6 @@ export const productApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: productData,
       }),
-      invalidatesTags: [{ type: "Product", id: "LIST" }],
     }),
 
     getProductById: builder.query({
