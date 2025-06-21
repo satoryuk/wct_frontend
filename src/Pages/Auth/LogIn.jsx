@@ -6,6 +6,7 @@ import { useLoginMutation } from "../../redux/hooks/authApiSlice";
 import { toast } from "react-toastify";
 import { BASE_URL_LOCAL } from "../../redux/constants";
 import { loginSuccess } from "../../redux/features/auth/authSlice";
+import { User, LockKeyhole } from "lucide-react";
 
 const LogIn = () => {
   const [email, setEmail] = useState("");
@@ -65,27 +66,6 @@ const LogIn = () => {
 
           {/* Form */}
           <form className="space-y-4" onSubmit={handleLogin}>
-            {/* Userame */}
-            {/* <div>
-              <h1 className="text-left font-medium text-gray-500 mb-1">
-                Username
-              </h1>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <img
-                    src={user}
-                    alt="User Icon"
-                    className="w-5 h-5 object-contain"
-                  />
-                </span>
-                <input
-                  type="text"
-                  placeholder="Username"
-                  className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-            </div> */}
-
             {/* Email */}
             <div>
               <h1 className="text-left font-medium text-gray-500 mb-1">
@@ -93,11 +73,7 @@ const LogIn = () => {
               </h1>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  {/* <img
-                    src={email}
-                    alt="User Icon"
-                    className="w-5 h-5 object-contain"
-                  /> */}
+                  <User className="w-4 h-4 text-gray-600" />
                 </span>
                 <input
                   value={email}
@@ -116,11 +92,7 @@ const LogIn = () => {
               </h1>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  {/* <img
-                    src={password}
-                    alt="User Icon"
-                    className="w-5 h-5 object-contain"
-                  /> */}
+                  <LockKeyhole className="w-4 h-4 text-gray-600" />
                 </span>
                 <input
                   value={password}

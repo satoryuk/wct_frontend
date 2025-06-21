@@ -61,9 +61,9 @@ const CustomerTable = ({
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-3 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* <th className="px-3 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Profile
-              </th>
+              </th> */}
               <th className="px-3 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Name
               </th>
@@ -97,7 +97,7 @@ const CustomerTable = ({
                   key={customer.user_id}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="py-4 px-6">
+                  {/* <td className="py-4 px-6">
                     {customer.profile ? (
                       <img
                         src={customer.profile}
@@ -109,7 +109,7 @@ const CustomerTable = ({
                         <ImageIcon className="w-5 h-5 text-gray-400" />
                       </div>
                     )}
-                  </td>
+                  </td> */}
                   <td className="py-4 px-6 text-gray-900">
                     {customer.username}
                   </td>

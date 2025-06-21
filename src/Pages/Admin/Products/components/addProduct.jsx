@@ -13,23 +13,24 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useGetBrandQuery } from "../../../../redux/hooks/brandApiSlice";
 
 const AddProduct = () => {
-  const [errors, setErrors] = React.useState("");
-  const [isEditMde, setIsEditMode] = React.useState(false);
+  const [errors, setErrors] = React.useState({});
+  const [isEditMode, setIsEditMode] = React.useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const [previewImage, setPreviewImage] = useState("");
 
   const [productData, setProductData] = useState({
     product_name: "",
-    image: null, // Changed from string to null for file upload
+    image: null,
     price: "",
     category: "",
     brand: "",
     stock_qty: "",
     expiry_date: "",
     description: "",
-    status: 1, // 1 for active, 0 for inactive
+    status: 1,
   });
+
   const [createProduct] = useCreateProductMutation();
   const [updateProduct] = useUpdateProductMutation();
   const { refetch } = useGetProductsQuery();
@@ -64,15 +65,14 @@ const AddProduct = () => {
     const errors = {};
     if (!productData.product_name)
       errors.product_name = "Product name is required";
-    if (!productData.image && !isEditMde) errors.image = "Image is required";
     if (!productData.price) errors.price = "Price is required";
-    if (!productData.stock_qty) errors.stock_qty = "stock_qty is required";
+    if (!productData.stock_qty) errors.stock_qty = "Stock quantity is required";
+    if (!isEditMode && !productData.image) errors.image = "Image is required";
     return errors;
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
     setProductData((prevData) => ({
       ...prevData,
       [name]:
@@ -122,7 +122,8 @@ const AddProduct = () => {
       formData.append("product_name", productData.product_name);
       if (productData.image instanceof File) {
         formData.append("image", productData.image);
-      } else if (productData.image) {
+      } else if (productData.image && typeof productData.image === "string") {
+        // If it's a string (existing image URL), append it directly
         formData.append("image", productData.image);
       }
       formData.append("price", productData.price);
@@ -133,7 +134,7 @@ const AddProduct = () => {
       formData.append("description", productData.description);
       formData.append("status", productData.status);
 
-      if (isEditMde) {
+      if (isEditMode) {
         console.log("Updating product...");
         const result = await updateProduct({ id, data: formData }).unwrap();
         console.log("Update result:", result);
@@ -157,14 +158,13 @@ const AddProduct = () => {
 
   return (
     <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 my-4">
-      {/* Form */}
       <form className="grid" onSubmit={handleSubmit}>
         <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-          {/* product Info */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {/* Product Name */}
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
-                Product Name {!isEditMde && "*"}
+                Product Name *
               </label>
               <input
                 type="text"
@@ -175,7 +175,7 @@ const AddProduct = () => {
                 className={`w-full px-3 py-2 border ${
                   errors.product_name ? "border-red-500" : "border-gray-300"
                 } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
-                required={!isEditMde}
+                required
               />
               {errors.product_name && (
                 <p className="mt-1 text-sm text-red-600">
@@ -183,9 +183,11 @@ const AddProduct = () => {
                 </p>
               )}
             </div>
+
+            {/* Price */}
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
-                Price {!isEditMde && "*"}
+                Price *
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
@@ -200,24 +202,25 @@ const AddProduct = () => {
                   } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
                   value={productData.price}
                   onChange={handleInputChange}
-                  required={!isEditMde}
+                  required
                 />
                 {errors.price && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.product_name}
-                  </p>
+                  <p className="mt-1 text-sm text-red-600">{errors.price}</p>
                 )}
               </div>
             </div>
+
+            {/* Category */}
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
-                Category {!isEditMde && "*"}
+                Category *
               </label>
               <select
-                className="addProductLabel appearance-none bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 name="category"
                 value={productData.category}
                 onChange={handleInputChange}
+                required
               >
                 <option value="" disabled>
                   Select category
@@ -227,85 +230,61 @@ const AddProduct = () => {
                     key={category.category_id}
                     value={category.category_id}
                   >
-                    {`${category.category_name}`}
+                    {category.category_name}
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 pt-6">
-                <svg
-                  className="h-4 w-4 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
             </div>
+
+            {/* Brand */}
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
-                Brand*
+                Brand *
               </label>
               <select
-                className="addProductLabel appearance-none bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 name="brand"
                 value={productData.brand}
                 onChange={handleInputChange}
+                required
               >
                 <option value="" disabled>
                   Select Brand
                 </option>
                 {brands?.map((brand) => (
                   <option key={brand.brand_id} value={brand.brand_id}>
-                    {`${brand.brand_name}`}
+                    {brand.brand_name}
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 pt-6">
-                <svg
-                  className="h-4 w-4 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
             </div>
+
+            {/* Stock Quantity */}
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
-                Stock stock_qty {!isEditMde && "*"}
+                Stock Quantity *
               </label>
               <input
                 type="number"
                 name="stock_qty"
-                placeholder="Enter stock_qty"
+                placeholder="Enter quantity"
                 min="0"
                 className={`w-full px-3 py-2 border ${
                   errors.stock_qty ? "border-red-500" : "border-gray-300"
                 } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
                 value={productData.stock_qty}
                 onChange={handleInputChange}
-                required={!isEditMde}
+                required
               />
               {errors.stock_qty && (
                 <p className="mt-1 text-sm text-red-600">{errors.stock_qty}</p>
               )}
             </div>
 
+            {/* Expiry Date */}
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
-                Expiry Date {!isEditMde && "*"}
+                Expiry Date *
               </label>
               <input
                 type="date"
@@ -315,7 +294,7 @@ const AddProduct = () => {
                 name="expiry_date"
                 value={productData.expiry_date}
                 onChange={handleInputChange}
-                required={!isEditMde}
+                required
               />
               {errors.expiry_date && (
                 <p className="mt-1 text-sm text-red-600">
@@ -324,10 +303,10 @@ const AddProduct = () => {
               )}
             </div>
 
-            {/* Image Upload Field */}
+            {/* Image Upload */}
             <div className="relative col-span-2 md:col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
-                Product Image {!isEditMde && "*"}
+                Product Image {!isEditMode && "*"}
               </label>
               <div className="flex items-center gap-4">
                 <div className="relative flex-1">
@@ -339,7 +318,7 @@ const AddProduct = () => {
                     className={`w-full px-3 py-2 border ${
                       errors.image ? "border-red-500" : "border-gray-300"
                     } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
-                    required={!isEditMde}
+                    required={!isEditMode}
                   />
                   {errors.image && (
                     <p className="mt-1 text-sm text-red-600">{errors.image}</p>
@@ -355,7 +334,7 @@ const AddProduct = () => {
                   </div>
                 )}
               </div>
-              {isEditMde && !previewImage && (
+              {isEditMode && !previewImage && (
                 <p className="text-sm text-gray-500 mt-1">
                   No image currently uploaded
                 </p>
@@ -364,6 +343,7 @@ const AddProduct = () => {
           </div>
         </div>
 
+        {/* Description */}
         <div className="col-span-1 sm:col-span-2 lg:col-span-3 mt-4">
           <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
             Product Description
@@ -392,7 +372,7 @@ const AddProduct = () => {
             className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center font-medium"
           >
             <Save className="w-5 h-5 mr-2" />
-            {isEditMde ? "Update Product" : "Add Product"}
+            {isEditMode ? "Update Product" : "Add Product"}
           </button>
         </div>
       </form>
