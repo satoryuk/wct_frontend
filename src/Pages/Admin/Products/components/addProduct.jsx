@@ -33,10 +33,10 @@ const AddProduct = () => {
 
   const [productData, setProductData] = useState({
     product_name: "",
-    image: null,
+    image: "",
     price: "",
-    category: "",
-    brand: "",
+    category_id: "",
+    brand_id: "",
     stock_qty: "",
     expiry_date: "",
     description: "",
@@ -60,8 +60,8 @@ const AddProduct = () => {
         product_name: existingProduct.data.product_name || "",
         image: existingProduct.data.image || null,
         price: existingProduct.data.price || "",
-        category: existingProduct.data.category || "",
-        brand: existingProduct.data.brand || "",
+        category_id: existingProduct.data.category_id || "",
+        brand_id: existingProduct.data.brand_id || "",
         stock_qty: existingProduct.data.stock_qty || "",
         expiry_date: existingProduct.data.expiry_date || "",
         description: existingProduct.data.description || "",
@@ -88,8 +88,8 @@ const AddProduct = () => {
     setProductData((prevData) => ({
       ...prevData,
       [name]:
-        name === "category" ||
-        name === "brand" ||
+        name === "category_id" ||
+        name === "brand_id" ||
         name === "stock_qty" ||
         name === "price"
           ? Number(value)
@@ -138,35 +138,20 @@ const AddProduct = () => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append("product_name", productData.product_name);
-      if (productData.image instanceof File) {
-        formData.append("image", productData.image);
-      } else if (productData.image && typeof productData.image === "string") {
-        formData.append("image", productData.image);
-      }
-      formData.append("price", productData.price);
-      formData.append("category", productData.category);
-      formData.append("brand", productData.brand);
-      formData.append("stock_qty", productData.stock_qty);
-      formData.append("expiry_date", productData.expiry_date);
-      formData.append("description", productData.description);
-      formData.append("status", productData.status);
-
       if (isEditMode) {
         console.log("Updating product...");
-        const result = await updateProduct({ id, data: formData }).unwrap();
+        const result = await updateProduct({ id, data: productData }).unwrap();
         console.log("Update result:", result);
         toast.success("Product updated successfully");
       } else {
         console.log("Creating product...");
-        const result = await createProduct(formData).unwrap();
+        const result = await createProduct(productData).unwrap();
         console.log("Create result:", result);
         toast.success("Product created successfully");
       }
 
       await refetch();
-      navigate("/admin/products");
+      navigate("/products");
     } catch (error) {
       console.error("Error submitting product:", error);
       toast.error(
@@ -318,20 +303,20 @@ const AddProduct = () => {
                 </label>
                 <select
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all duration-200"
-                  name="category"
-                  value={productData.category}
+                  name="category_id"
+                  value={productData.category_id}
                   onChange={handleInputChange}
                   required
                 >
                   <option value="" disabled>
-                    Select category
+                    Select category_id
                   </option>
-                  {categories?.map((category) => (
+                  {categories?.map((category_id) => (
                     <option
-                      key={category.category_id}
-                      value={category.category_id}
+                      key={category_id.category_id}
+                      value={category_id.category_id}
                     >
-                      {category.category_name}
+                      {category_id.category_name}
                     </option>
                   ))}
                 </select>
@@ -345,17 +330,17 @@ const AddProduct = () => {
                 </label>
                 <select
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all duration-200"
-                  name="brand"
-                  value={productData.brand}
+                  name="brand_id"
+                  value={productData.brand_id}
                   onChange={handleInputChange}
                   required
                 >
                   <option value="" disabled>
                     Select Brand
                   </option>
-                  {brands?.map((brand) => (
-                    <option key={brand.brand_id} value={brand.brand_id}>
-                      {brand.brand_name}
+                  {brands?.map((brand_id) => (
+                    <option key={brand_id.brand_id} value={brand_id.brand_id}>
+                      {brand_id.brand_name}
                     </option>
                   ))}
                 </select>
@@ -412,67 +397,32 @@ const AddProduct = () => {
                   onChange={handleInputChange}
                 ></textarea>
               </div>
-            </div>
+            </div>  
           </div>
-
-          {/* Image Upload Section */}
-          <div className="mb-10">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <div className="w-2 h-6 bg-gradient-to-b from-orange-500 to-red-600 rounded-full"></div>
-              Product Image {!isEditMode && "*"}
-            </h3>
-
-            <div className="space-y-4">
-              {previewImage ? (
-                <div className="relative inline-block">
-                  <div className="w-48 h-48 border-2 border-gray-200 rounded-2xl overflow-hidden bg-gray-50">
-                    <img
-                      src={previewImage}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-blue-400 transition-colors">
-                  <Image className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-2">No image selected</p>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl cursor-pointer hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 w-fit">
-                  <Upload className="w-5 h-5" />
-                  {previewImage ? "Change Image" : "Upload Image"}
-                  <input
-                    type="file"
-                    name="image"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    required={!isEditMode}
-                  />
-                </label>
-                {errors.image && (
-                  <p className="text-sm text-red-600 flex items-center gap-1">
-                    <X className="w-3 h-3" />
-                    {errors.image}
-                  </p>
-                )}
-                {isEditMode && !previewImage && (
-                  <p className="text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200">
-                    No image currently uploaded
-                  </p>
-                )}
-              </div>
-            </div>
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <Package className="w-4 h-4 text-gray-500" />
+              Image *
+            </label>
+            <input
+              type="text"
+              name="image"
+              placeholder="Enter image url"
+              value={productData.image}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-3 border-2 ${
+                errors.image
+                  ? "border-red-300 focus:border-red-500"
+                  : "border-gray-200 focus:border-blue-500"
+              } rounded-xl focus:ring-4 focus:ring-blue-50 transition-all duration-200 placeholder-gray-400`}
+              required
+            />
+            {errors.image && (
+              <p className="text-sm text-red-600 flex items-center gap-1">
+                <X className="w-3 h-3" />
+                {errors.image}
+              </p>
+            )}
           </div>
 
           {/* Action Buttons */}
