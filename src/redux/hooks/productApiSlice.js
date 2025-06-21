@@ -53,6 +53,11 @@ export const productApiSlice = apiSlice.injectEndpoints({
         url: `${BASE_PRIVATE_URL}/products`,
         method: "POST",
         body: productData,
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Product", id: "List" }],
     }),

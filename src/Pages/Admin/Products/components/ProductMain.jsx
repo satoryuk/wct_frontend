@@ -28,7 +28,7 @@ const ProductMain = () => {
     search: searchTerm,
   });
 
-  console.log(productsData)
+  console.log(productsData);
 
   const filteredproducts = Array.isArray(productsData?.data)
     ? productsData?.data.filter((product) =>
@@ -82,7 +82,6 @@ const ProductMain = () => {
       `"${product.product_name?.replace(/"/g, '""')}"`,
       product.price ? `$${product.price.toFixed(2)}` : "",
       product.stock_qty || 0,
-      product.category_id,
       product.expiry_date
         ? new Date(product.expiry_date).toLocaleDateString()
         : "N/A",

@@ -8,7 +8,7 @@ const InventoryCard = ({ products = [], isLoading = false }) => {
     (product) => product?.stock === 0
   ).length;
   const activeProducts = products.filter(
-    (product) => product?.status && product?.stock > 0
+    (product) => product?.status
   ).length;
 
   const cardData = [

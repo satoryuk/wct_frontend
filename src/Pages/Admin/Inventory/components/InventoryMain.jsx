@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Filter, Download, Search } from "lucide-react"; // Added missing icons
+import { Filter, Download, Search } from "lucide-react";
 import { toast } from "react-toastify";
 import { useGetInventoryQuery } from "../../../../redux/hooks/inventoryApiSlice";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,9 @@ import InventoryCard from "./InventoryCard";
 const InventoryMain = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [stockStatusFilter, setStockStatusFilter] = useState("all"); // 'all', 'in stock', 'out of stock'
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(Date.now()); // Track last update time
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
@@ -22,6 +25,8 @@ const InventoryMain = () => {
     page: currentPage,
     per_page: itemsPerPage,
     search: searchTerm,
+    stock_status: stockStatusFilter !== "all" ? stockStatusFilter : undefined,
+    lastUpdated,
   });
 
   console.log("inventory", inventoryData);
@@ -30,32 +35,23 @@ const InventoryMain = () => {
     setCurrentPage(page);
   };
 
+  const handleStockStatusFilter = (stockStatus) => {
+    setStockStatusFilter(stockStatus);
+    setCurrentPage(1);
+    setShowFilterDropdown(false);
+  };
+
   const exportToCSV = () => {
     if (!inventoryData?.data?.length) {
       toast.warning("No products available to export");
       return;
     }
 
-    const headers = [
-      "ID",
-      "Name",
-      "Price",
-      "Quantity",
-      "Category",
-      "Expiry Date",
-      "Status",
-    ];
+    const headers = ["Product Name", "Stock", "Status"];
     const csvRows = inventoryData.data.map((product) => [
-      // Fixed variable name from productsData to inventoryData
-      product.product_id,
-      `"${product.product_name?.replace(/"/g, '""')}"`,
-      product.price ? `$${product.price.toFixed(2)}` : "",
-      product.stock_qty || 0,
-      product.category_id,
-      product.expiry_date
-        ? new Date(product.expiry_date).toLocaleDateString()
-        : "N/A",
-      product.status ? "Active" : "Inactive",
+      `"${product.name?.replace(/"/g, '""')}"`,
+      product.stock || 0,
+      product.stockStatus,
     ]);
 
     const csvContent = [
@@ -96,10 +92,58 @@ const InventoryMain = () => {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-              <Filter className="w-4 h-4" />
-              Filter
-            </button>
+            <div className="relative">
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              >
+                <Filter className="w-4 h-4" />
+                Filter
+                {stockStatusFilter !== "all" && (
+                  <span className="ml-1 text-xs bg-blue-500 text-white rounded-full px-2 py-0.5">
+                    {stockStatusFilter === "in stock"
+                      ? "In Stock"
+                      : "Out of Stock"}
+                  </span>
+                )}
+              </button>
+              {showFilterDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                  <div className="py-1">
+                    <button
+                      onClick={() => handleStockStatusFilter("all")}
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        stockStatusFilter === "all"
+                          ? "bg-gray-100 text-gray-900"
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      All Products
+                    </button>
+                    <button
+                      onClick={() => handleStockStatusFilter("in stock")}
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        stockStatusFilter === "in stock"
+                          ? "bg-gray-100 text-gray-900"
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      In Stock
+                    </button>
+                    <button
+                      onClick={() => handleStockStatusFilter("out of stock")}
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        stockStatusFilter === "out of stock"
+                          ? "bg-gray-100 text-gray-900"
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      Out of Stock
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             <button
               onClick={exportToCSV}
               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -132,7 +176,6 @@ const InventoryMain = () => {
           </div>
         ) : (
           <InventoryTable
-            // products={inventoryData?.data} // Fixed variable name from filteredinventory to inventoryData.data
             currentPage={currentPage}
             inventoryData={inventoryData?.data}
             itemsPerPage={itemsPerPage}

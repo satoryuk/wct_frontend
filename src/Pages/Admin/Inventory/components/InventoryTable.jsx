@@ -28,7 +28,7 @@ const InventoryTable = ({ inventoryData, onPageChange, isLoading = false }) => {
   }
 
   const formatStatus = (status) => {
-    return status === 1 ? "Active" : "Inactive";
+    return status === 1 || status === true ? "Active" : "Inactive";
   };
 
   return (
@@ -67,14 +67,15 @@ const InventoryTable = ({ inventoryData, onPageChange, isLoading = false }) => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      product.status === 1 || product.status === true
+                      formatStatus(product.status) === "Active"
                         ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
                     {formatStatus(product.status)}
                   </span>
                 </td>
+
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
