@@ -44,16 +44,14 @@ const router = createBrowserRouter([
       {
         path: "/products/createProduct",
         element: <AddProduct />,
-        children: [
-          {
-            path: "createBrand",
-            element: <BrandForm />,
-          },
-          {
-            path: "createCategory",
-            element: <CategoryForm />,
-          },
-        ],
+      },
+      {
+        path: "createBrand",
+        element: <BrandForm />,
+      },
+      {
+        path: "createCategory",
+        element: <CategoryForm />,
       },
       {
         path: "/products/:id",

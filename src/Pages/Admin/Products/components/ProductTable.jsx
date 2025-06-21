@@ -174,7 +174,7 @@ const ProductTable = ({
       </div>
 
       {/* Pagination */}
-      {/* {products.length > 0 && (
+      {products.length > 0 && (
         <div className="mt-6 flex flex-col sm:flex-row justify-between items-center">
           <div className="text-sm text-gray-500 mb-4 sm:mb-0">
             Showing {indexOfFirstItem + 1}-
@@ -250,7 +250,7 @@ const ProductTable = ({
             </button>
           </div>
         </div>
-      )} */}
+      )}
     </>
   );
 };

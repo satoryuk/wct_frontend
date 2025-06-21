@@ -51,7 +51,7 @@ const ProductMain = () => {
       toast.success(
         `Product ${currentStatus ? "deactivated" : "activated"} successfully!`
       );
-      refetch();
+      await refetch();
     } catch (err) {
       toast.error(err.data?.message || "Failed to update product status");
       console.error("Failed to toggle product status:", err);

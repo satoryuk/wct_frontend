@@ -4,7 +4,7 @@ import { BASE_PRIVATE_URL } from "../constants";
 export const productApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getProducts: builder.query({
-      query: ({ page = 1, per_page = 10, search = "" }) => ({
+      query: ({ page = 1, per_page = 100, search = "" }) => ({
         url: `${BASE_PRIVATE_URL}/products`,
         method: "GET",
         params: {
@@ -23,7 +23,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
           meta: {
             total: response.data?.total || 0,
             current_page: response.data?.current_page || 1,
-            per_page: response.data?.per_page || 10,
+            per_page: response.data?.per_page || 100,
             last_page: response.data?.last_page || 1,
           },
         };
@@ -55,7 +55,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
         body: productData,
         headers: {
           "Content-Type": "application/json",
-          'Accept': "application/json",
+          Accept: "application/json",
         },
         credentials: "include",
       }),
