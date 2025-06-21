@@ -16,11 +16,13 @@ import ProductsPage from "./Pages/Admin/Products/ProductsPage";
 import CustomersPage from "./Pages/Admin/Customers/CustomersPage";
 import OrdersPage from "./Pages/Admin/Orders/OrdersPage";
 import PaymentsPage from "./Pages/Admin/Payments/PaymentsPage";
-// import InventoryPage from "./Pages/Admin/Inventory/InventoryPage";
+import InventoryPage from "./Pages/Admin/Inventory/InventoryPage";
 import HelpCenterPage from "./Pages/Admin/HelpCenter/HelpCenterPage";
 import SettingPage from "./Pages/Admin/SettingPage/SettingPage";
 import ProtectedRoute from "./Components/ProtectRoute";
 import AddProduct from "./Pages/Admin/Products/components/addProduct";
+import BrandForm from "./Pages/Admin/Products/components/BrandForm";
+import CategoryForm from "./Pages/Admin/Products/components/CategoryForm";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +44,16 @@ const router = createBrowserRouter([
       {
         path: "/products/createProduct",
         element: <AddProduct />,
+        children: [
+          {
+            path: "createBrand",
+            element: <BrandForm />,
+          },
+          {
+            path: "createCategory",
+            element: <CategoryForm />,
+          },
+        ],
       },
       {
         path: "/products/:id",
@@ -59,10 +71,10 @@ const router = createBrowserRouter([
         path: "/payments",
         element: <PaymentsPage />,
       },
-      // {
-      //   path: "/inventories",
-      //   element: <InventoryPage />,
-      // },
+      {
+        path: "/inventories",
+        element: <InventoryPage />,
+      },
       {
         path: "/help",
         element: <HelpCenterPage />,

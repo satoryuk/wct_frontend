@@ -9,7 +9,7 @@ import {
   help,
   settings,
   customers,
-  // inventory,
+  inventory,
 } from "../../Assets/icons/icons";
 import { LogOut } from "lucide-react";
 import { useLogoutMutation } from "../../redux/hooks/authApiSlice";
@@ -119,7 +119,7 @@ const NavLinks = ({ isOpen, toggleSidebar, isMobile }) => {
           <img src={payments} alt="payments icon" className="w-5 h-5 ml-8" />
           <span>Payments</span>
         </NavLink>
-        {/* <NavLink
+        <NavLink
           to="/inventories"
           className={({ isActive }) => `
             ${isActive ? "bg-gray-600" : "hover:bg-gray-600"} 
@@ -129,7 +129,7 @@ const NavLinks = ({ isOpen, toggleSidebar, isMobile }) => {
         >
           <img src={inventory} alt="inventory icon" className="w-5 h-5 ml-8" />
           <span>Inventory</span>
-        </NavLink> */}
+        </NavLink>
 
         <h2 className="text-sm py-4">HELP & SUPPORT</h2>
 

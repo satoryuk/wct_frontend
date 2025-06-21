@@ -1,10 +1,9 @@
 import React from "react";
-
+import Setting from "./components/Setting"
 const SettingPage = () => {
   return (
     <div>
-      <h1>Settings</h1>
-      <p>Manage your application settings here.</p>
+      <Setting />
     </div>
   );
 };

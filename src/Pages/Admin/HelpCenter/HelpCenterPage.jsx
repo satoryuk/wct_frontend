@@ -1,10 +1,10 @@
 import React from "react";
+import HelpCenter from "./components/HelpCenter";
 
 const HelpCenterPage = () => {
   return (
     <div>
-      <h1>Help Center</h1>
-      <p>Welcome to the Help Center. How can we assist you today?</p>
+      <HelpCenter />
     </div>
   );
 };

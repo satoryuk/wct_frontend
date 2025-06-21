@@ -1,14 +1,10 @@
 import React from "react";
-import OrderTable from "./components/OrderTable";
+import OrderMain from "./components/OrderMain";
 
 const OrdersPage = () => {
   return (
     <section>
-      <h2 className="text-2xl text-gray-600 text-left font-bold py-4">
-        Order History
-      </h2>
-      {/* Top Products */}
-      <OrderTable />
+      <OrderMain />
     </section>
   );
 };

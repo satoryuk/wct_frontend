@@ -1,11 +1,11 @@
 import React from "react";
+import InventoryMain from "./components/InventoryMain";
 
 const InventoryPage = () => {
   return (
-    <div>
-      <h1>Inventorys</h1>
-      <p>Manage your application Inventorys here.</p>
-    </div>
+    <section>
+      <InventoryMain />
+    </section>
   );
 };
 
