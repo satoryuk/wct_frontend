@@ -70,15 +70,16 @@ const ProductMain = () => {
 
     const headers = [
       "ID",
+      'Image',
       "Name",
       "Price",
       "Quantity",
-      "Category",
       "Expiry Date",
       "Status",
     ];
     const csvRows = productsData.data.map((product) => [
       product.product_id,
+      product.image,
       `"${product.product_name?.replace(/"/g, '""')}"`,
       product.price ? `$${product.price.toFixed(2)}` : "",
       product.stock_qty || 0,
